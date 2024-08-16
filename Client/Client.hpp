@@ -136,7 +136,10 @@ port_(port), host_(host), verbose_(verbose), header_ptr_(header_ptr)
             throw ClientException::portException("Invalid port: " + std::to_string(port));
         if (!isHostValid(host))
             throw ClientException::hostException("Invalid host: " + host);
-        address_ = boost::asio::ip::make_address_v4(host);
+        if (host == "localhost")
+            address_ = boost::asio::ip::make_address_v4("127.0.0.1");
+        else
+            address_  = boost::asio::ip::make_address_v4(host);
         if (header_ptr == nullptr)
             throw ClientException::ptrException("Null pointer");
         if (verbose)
@@ -261,14 +264,12 @@ bool UDP::Client<M>::getVerbose() const
 template<typename M>
 void UDP::Client<M>::listenRoutine()
 {
-    boost::asio::ip::udp::endpoint remote_endpoint_;
-    socket_.async_receive_from(boost::asio::buffer(header_ptr_), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t bytes_recvd) {
-        if (bytes_recvd > 0 && bytes_recvd < sizeof(*header_ptr_)) {
-            header_t h;
-        }
-    });
+    while (true) {
+        boost::asio::ip::udp::endpoint remote_endpoint_;
+        const size_t bytes_received = socket_.receive_from(boost::asio::buffer(*header_ptr_), remote_endpoint_);
 
+        std::cout << "Message reçu de " << remote_endpoint_ << std::endl;
+    }
 }
 
 template<typename M>
@@ -285,8 +286,10 @@ bool UDP::Client<M>::listenToServer()
             return (false);
         }
         socket_.open(boost::asio::ip::udp::v4());
+        socket_.send_to(boost::asio::buffer(std::string("hello from client")), *endpoints_.begin());
 
-        thread_ = std::thread(listenRoutine);
+        thread_ = std::thread([this]() { listenRoutine(); });
+
 
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

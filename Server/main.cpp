@@ -1,48 +1,76 @@
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/bind/bind.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <set>
 
 using boost::asio::ip::udp;
 
-class UdpServer {
+class UDPServer {
 public:
-    UdpServer(boost::asio::io_context& io_context, short port)
-        : socket_(io_context, udp::endpoint(udp::v4(), port)) {
-        start_receive();
+    UDPServer(boost::asio::io_context& io_context, short port)
+        : socket_(io_context, udp::endpoint(udp::v4(), port)),
+          timer_(io_context, boost::posix_time::seconds(3)) {
+
+        startReceive();
+        startTimer();
     }
 
 private:
-    void start_receive() {
-        socket_.async_receive_from(
-            boost::asio::buffer(recv_buffer_), remote_endpoint_,
-            [this](boost::system::error_code ec, std::size_t bytes_recvd) {
-                this->handle_receive(ec, bytes_recvd);
-            });
+    void startReceive() {
+        socket_.async_receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_,
+            boost::bind(&UDPServer::handleReceive, this,
+                        boost::asio::placeholders::error,
+                        boost::asio::placeholders::bytes_transferred));
     }
 
-    void handle_receive(const boost::system::error_code& error, std::size_t bytes_transferred) {
-        if (!error && bytes_transferred > 0) {
-            std::cout << "Received message: " << std::string(recv_buffer_.data(), bytes_transferred) << std::endl;
+    void handleReceive(const boost::system::error_code& error, std::size_t /*bytes_transferred*/) {
+        if (!error) {
+            std::cout << "New client connected from: " << remote_endpoint_ << std::endl;
+            clients_.insert(remote_endpoint_);  // Add the client to the set of clients
+            startReceive();
+        } else {
+            std::cerr << "Error receiving: " << error.message() << std::endl;
         }
-        start_receive();
+    }
+
+    void startTimer() {
+        timer_.async_wait(boost::bind(&UDPServer::handleSend, this));
+    }
+
+    void handleSend() {
+        std::string current_time = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time());
+        std::string message = "Hello, " + current_time;
+
+        // Send the message to all clients
+        for (const auto& client : clients_) {
+            std::cout << "Sending to client " << client << std::endl;
+            boost::system::error_code ignored_error;
+            socket_.send_to(boost::asio::buffer(message), client, 0, ignored_error);
+            if (ignored_error) {
+                std::cerr << "Failed to send message: " << ignored_error.message() << std::endl;
+            }
+        }
+
+        // Restart the timer to send the next message in 3 seconds
+        timer_.expires_at(timer_.expires_at() + boost::posix_time::seconds(3));
+        startTimer();
     }
 
     udp::socket socket_;
     udp::endpoint remote_endpoint_;
-    std::array<char, 1024> recv_buffer_;
+    std::set<udp::endpoint> clients_;  // Store client endpoints
+    boost::asio::deadline_timer timer_;
+    std::array<char, 1> recv_buffer_;
 };
 
-int main(int argc, char* argv[]) {
+int main() {
     try {
-        if (argc != 2) {
-            std::cerr << "Usage: UdpServer <port>" << std::endl;
-            return 1;
-        }
-
         boost::asio::io_context io_context;
-        UdpServer server(io_context, std::atoi(argv[1]));
+        UDPServer server(io_context, 8080);  // UDP Server on port 8080
         io_context.run();
     } catch (std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 
     return 0;

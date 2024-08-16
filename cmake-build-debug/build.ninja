@@ -11,7 +11,7 @@
 # =============================================================================
 
 # =============================================================================
-# Project: Client
+# Project: Server
 # Configurations: Debug
 # =============================================================================
 
@@ -72,6 +72,38 @@ build Client: CXX_EXECUTABLE_LINKER__Client_Debug CMakeFiles/Client.dir/Client/m
   TARGET_FILE = Client
   TARGET_PDB = Client.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target Server
+
+
+#############################################
+# Order-only phony target for Server
+
+build cmake_object_order_depends_target_Server: phony || CMakeFiles/Server.dir
+
+build CMakeFiles/Server.dir/Server/main.cpp.o: CXX_COMPILER__Server_unscanned_Debug /home/ewicart/docs/TEK3/RTYPE/Server/main.cpp || cmake_object_order_depends_target_Server
+  DEP_FILE = CMakeFiles/Server.dir/Server/main.cpp.o.d
+  FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
+  INCLUDES = -I/home/ewicart/docs/TEK3/RTYPE/Server
+  OBJECT_DIR = CMakeFiles/Server.dir
+  OBJECT_FILE_DIR = CMakeFiles/Server.dir/Server
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target Server
+
+
+#############################################
+# Link the executable Server
+
+build Server: CXX_EXECUTABLE_LINKER__Server_Debug CMakeFiles/Server.dir/Server/main.cpp.o
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles/Server.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = Server
+  TARGET_PDB = Server.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -106,7 +138,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Folder: /home/ewicart/docs/TEK3/RTYPE/cmake-build-debug
 
-build all: phony Client
+build all: phony Client Server
 
 # =============================================================================
 # Built-in targets
