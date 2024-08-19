@@ -10,7 +10,7 @@ class UDPServer {
 public:
     UDPServer(boost::asio::io_context& io_context, short port)
         : socket_(io_context, udp::endpoint(udp::v4(), port)),
-          timer_(io_context, boost::posix_time::seconds(3)) {
+          timer_(io_context, boost::posix_time::seconds(0)) {
 
         startReceive();
         startTimer();
@@ -40,16 +40,10 @@ private:
 
     void handleSend() {
         std::string current_time = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time());
-        std::string message = "Hello, " + current_time;
 
-        // Send the message to all clients
         for (const auto& client : clients_) {
             std::cout << "Sending to client " << client << std::endl;
-            boost::system::error_code ignored_error;
-            socket_.send_to(boost::asio::buffer(message), client, 0, ignored_error);
-            if (ignored_error) {
-                std::cerr << "Failed to send message: " << ignored_error.message() << std::endl;
-            }
+            socket_.send_to(boost::asio::buffer(current_time), client, 0);
         }
 
         // Restart the timer to send the next message in 3 seconds

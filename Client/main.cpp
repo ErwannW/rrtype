@@ -43,8 +43,9 @@ int main(int ac, char **av)
 
     try {
         UDP::Client<std::string> client(static_cast<uint16_t>(std::stoi(av[2])), av[1], true, a);
-        client.listenToServer();
-        while (true) {}
+        client.listen();
+        while (true) {
+        }
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
     }

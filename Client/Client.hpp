@@ -19,6 +19,7 @@
 
 #define SUCCESS 0
 #define FAIL 84
+#define MAX_PAYLOAD_DATA 508
 
 namespace UDP {
     namespace ClientException {
@@ -97,7 +98,7 @@ namespace UDP {
             [[nodiscard]] const std::string &getHost(void) const;
             [[nodiscard]] bool getVerbose(void) const;
 
-            bool listenToServer(void);
+            bool listen(void);
             bool disconnectFromServer(void);
     };
 }
@@ -266,14 +267,13 @@ void UDP::Client<M>::listenRoutine()
 {
     while (true) {
         boost::asio::ip::udp::endpoint remote_endpoint_;
-        const size_t bytes_received = socket_.receive_from(boost::asio::buffer(*header_ptr_), remote_endpoint_);
-
-        std::cout << "Message reçu de " << remote_endpoint_ << std::endl;
+        header_ptr_->resize(MAX_PAYLOAD_DATA);
+        socket_.receive_from(boost::asio::buffer(*header_ptr_), remote_endpoint_);
     }
 }
 
 template<typename M>
-bool UDP::Client<M>::listenToServer()
+bool UDP::Client<M>::listen()
 {
     try {
         connected_ = true;
@@ -285,7 +285,14 @@ bool UDP::Client<M>::listenToServer()
                 CLIENT_UUID_COUT << "Error connecting: Resolve: " << ec.message() << std::endl;
             return (false);
         }
-        socket_.open(boost::asio::ip::udp::v4());
+
+        socket_.open(boost::asio::ip::udp::v4(), ec);
+        if (ec) {
+            if (verbose_)
+                CLIENT_UUID_COUT << "Error connecting: Open: " << ec.message() << std::endl;
+            return (false);
+        }
+
         socket_.send_to(boost::asio::buffer(std::string("hello from client")), *endpoints_.begin());
 
         thread_ = std::thread([this]() { listenRoutine(); });
