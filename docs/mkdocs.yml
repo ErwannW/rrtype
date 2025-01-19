@@ -1,11 +1,12 @@
 site_name: RType
 
+docs_dir: docs
+
+site_dir: site
+
 nav:
   - Home: README.md
   - Documentation:
       - "Page 1": RTYPE.md
       - "Page 2": ABN.md
       - "Page 3": ENGINE.md
-
-theme:
-  name: material
