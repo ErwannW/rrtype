@@ -3,7 +3,8 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    - mkdocs
+    mkdocs:
+      version: latest
 
 mkdocs:
   configuration: docs/mkdocs.yml
