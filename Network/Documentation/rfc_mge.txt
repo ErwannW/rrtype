@@ -1,0 +1,70 @@
+                                                 RFC MGE SPECIFICATIONS
+                   Erwann WICART | Naïl PERREAU | Louis CROCI | Kyllian BRIERE | Quentin LOUYOT-DOSSAT
+                                                      EPITECH, 2024
+
+                    Status of this Memo
+                        This document specifies a standards track protocol for the MGE made
+                        for R-TYPE© EPITECH© project. Please refer to the current edition of
+                        the RFC MGE for the standardization state and status of this protocol.
+
+                    Table of Contents
+
+                       1. Introduction ............................................
+                       2. Definitions .............................................
+
+                    1. Introduction
+                        The protocol ensures reliable, efficient, and scalable data exchange between clients
+                        and servers across diverse network environments. It defines message formats, connection
+                        handling, and error recovery mechanisms. A standardized protocol is essential to maintain
+                        interoperability, consistency, and robustness, enabling different systems and applications
+                        to communicate seamlessly. This specification addresses both TCP (connection-oriented) and
+                        UDP (connectionless) scenarios, offering guidelines for developers to implement reliable
+                        communication systems in distributed applications.
+
+                    2. Definitions
+
+                    --------------------------------------------------------------------------------
+                    |                            MGE Header definition                             |
+                    --------------------------------------------------------------------------------
+                    | Designation   | Description                   | Type/Size    | Additional    |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | CommandID     | Command code to determine     | 1 bytes      | See section 3 |
+                    |               | what the data means.          | unsigned     | for the list  |
+                    |               |                               | integer      | of available  |
+                    |               |                               |              | commands.     |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | NetCommand    | Id to know entity.            | 2 bytes      |               |
+                    |               |                               | unsigned     |               |
+                    |               |                               | integer      |               |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | ?Data         | Maybe data relating to what   | ? bytes      | Depend on     |
+                    |               | is send.                      | unsigned     | game, list is |
+                    |               |                               | integer      | too long for  |
+                    |               |                               |              | rfc           |
+                    --------------------------------------------------------------------------------
+
+                    3. List of codes
+
+                    --------------------------------------------------------------------------------
+                    |                                 List of codes                                |
+                    --------------------------------------------------------------------------------
+                    | Command code  | Description                                  | Additional    |
+                    |---------------|----------------------------------------------|---------------|
+                    | 100           | Unknown                                      |               |
+                    |---------------|----------------------------------------------|---------------|
+                    | 101           | ReplicateProperty                            |               |
+                    |---------------|----------------------------------------------|---------------|
+                    | 102           | Rpc                                          |               |
+                    |---------------|----------------------------------------------|---------------|
+                    | 103           | Travel                                       |               |
+                    |---------------|----------------------------------------------|---------------|
+                    | 104           | ManageEntity                                 |               |
+                    |---------------|----------------------------------------------|---------------|
+                    | 105           | DestroyEntity                                |               |
+                    |---------------|----------------------------------------------|---------------|
+                    | 106           | SpaceShipEvent                               |               |
+                    |---------------|----------------------------------------------|---------------|
+                    | 107           | GameEvent                                    |               |
+                    |---------------|----------------------------------------------|---------------|
+                    | 108           | ServerOrderGameManagement                    |               |
+                    --------------------------------------------------------------------------------

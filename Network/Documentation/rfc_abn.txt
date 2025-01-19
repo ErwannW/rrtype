@@ -1,0 +1,100 @@
+                                                 RFC ABN SPECIFICATIONS
+                   Erwann WICART | Naïl PERREAU | Louis CROCI | Kyllian BRIERE | Quentin LOUYOT-DOSSAT
+                                                      EPITECH, 2024
+
+                    Status of this Memo
+                        This document specifies a standards track protocol for the ABN made
+                        for R-TYPE© EPITECH© project. Please refer to the current edition of
+                        the RFC ABN for the standardization state and status of this protocol.
+
+                    Table of Contents
+
+                       1. Introduction ............................................
+                       2. Definitions .............................................
+                        2.1. UDP Header ...........................................
+                        2.2. TCP Header ...........................................
+                        2.3. ABN Header ...........................................
+                       3. List of codes ...........................................
+
+                    1. Introduction
+                        The protocol ensures reliable, efficient, and scalable data exchange between clients
+                        and servers across diverse network environments. It defines message formats, connection
+                        handling, and error recovery mechanisms. A standardized protocol is essential to maintain
+                        interoperability, consistency, and robustness, enabling different systems and applications
+                        to communicate seamlessly. This specification addresses both TCP (connection-oriented) and
+                        UDP (connectionless) scenarios, offering guidelines for developers to implement reliable
+                        communication systems in distributed applications.
+
+                    2. Definitions
+
+                        2.1. UDP Header
+
+                    For each UDP request, we do use the official format as describe in RFC768
+                    (https://www.ietf.org/rfc/rfc768.txt) on top for any kind of request.
+
+                        2.1. TCP Header
+
+                    For each TCP request, we do use the official format as describe in RFC793
+                    (https://www.ietf.org/rfc/rfc793.txt) on top for any kind of request.
+
+                        2.3. Game Engine Client Header
+
+                    Considering the MTU advise to limit bytes for each packet at 1500, to avoid
+                    fragmentation, data losses, etc... and taking in note that just above, we
+                    describe our communication method, for UDP or TCP communication, we will
+                    lock the max size in one packet to 1500 - 20 (header size) = 1480 bytes
+
+                    Moreover, we do use an overlay to ensure well-formed packet, the is 6 bytes
+                    long, as describe just bellow that:
+
+                    --------------------------------------------------------------------------------
+                    |                            ABN Header definition                             |
+                    --------------------------------------------------------------------------------
+                    | Designation   | Description                   | Type/Size    | Additional    |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | Magic string  | "ABN"                         | 3 bytes      | Magic string  |
+                    |               |                               | unsigned     | to prevent    |
+                    |               |                               | integer      | process only  |
+                    |               |                               |              | ABN package   |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | Command code  | Command code to determine     | 1 bytes      | See section 3 |
+                    |               | what the data means.          | unsigned     | for the list  |
+                    |               |                               | integer      | of available  |
+                    |               |                               |              | commands.     |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | Client id     |                               | 2 bytes      |               |
+                    |               |                               | unsigned     |               |
+                    |               |                               | integer      |               |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | Body size     | The size of the data          | 2 bytes      | Should be     |
+                    |               | contained in this packet.     | unsigned     | capped at     |
+                    |               |                               | integer      | 1474 bytes as |
+                    |               |                               |              | explained     |
+                    |               |                               |              | above.        |
+                    --------------------------------------------------------------------------------
+
+                    There is only 1500 - 20 - 6 = 1474 bytes left to communicate for one packet,
+                    so it should be looking like this:
+
+                    |---------------|-------------------------------|--------------|---------------|
+                    | Data          | Data transmitted in accord    | Range from   | Advised to be |
+                    |               | with the command code give    | 0-1474 bytes | in binary to  |
+                    |               |                               |              | be able to    |
+                    |               |                               |              | compact as    |
+                    |               |                               |              | much data     |
+                    |               |                               |              | possible.     |
+                    --------------------------------------------------------------------------------
+
+                    3. List of codes
+
+                    The ABN lib got some protected command which are not much numerous:
+
+                    --------------------------------------------------------------------------------
+                    |                                 List of codes                                |
+                    --------------------------------------------------------------------------------
+                    | Command code  | Description                   | Size         | Additional    |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | 0             | Client connection as user     | 0            | Log user in.  |
+                    |---------------|-------------------------------|--------------|---------------|
+                    | 1             | Client disconnection          | 0            | Log user out. |
+                    --------------------------------------------------------------------------------

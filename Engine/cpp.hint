@@ -1,0 +1,15 @@
+// Les fichiers hint permettent à l'IDE Visual Studio d'interpréter les identificateurs Visual C++
+// tels que les noms de fonctions et de macros.
+// Pour plus d'informations, consultez https://go.microsoft.com/fwlink/?linkid=865984
+
+#define TypeUsing _Type
+#define RegisterProperty(prop, ...) AddProperty<TypeUsing, std::decay_t<decltype(prop)>>(#prop, &TypeUsing::prop __VA_OPT__(,)__VA_ARGS__)
+#define RegisterRPC(prop, target, ...) AddRPC<TypeUsing>(#prop, target, &TypeUsing::prop __VA_OPT__(,)__VA_ARGS__)
+#define REPLICATED Property::Attributes::Replicated
+
+#define DECLARE_STATIC_CLASS(c) static inline MGE::Class Class = MGE::Class(#c)
+#define DECLARE_SETUP_REFLECTION_METHOD static void SetupReflection()
+#define STATIC_GET_CLASS(c) static const MGE::Class &GetClass() { static bool initialized = false; if (!initialized) { initialized = true; Class.size = sizeof(c); SetupReflection(); } return Class; }
+
+#define REFLECT_CLASS (c) private: DECLARE_STATIC_CLASS(c); DECLARE_SETUP_REFLECTION_METHOD; public: using TypeUsing = c; STATIC_GET_CLASS(c); private:
+#define REFLECT_STRUCT(c) private: DECLARE_STATIC_CLASS(c); DECLARE_SETUP_REFLECTION_METHOD; public: using TypeUsing = c; STATIC_GET_CLASS(c);
