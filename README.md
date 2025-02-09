@@ -1,6 +1,7 @@
 # Rtype
 
 Welcome to the RTYPE project
+TEST MICRO 1-2-1-2
 
 ## How to launch RTYPE
 
